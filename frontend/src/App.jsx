@@ -1,33 +1,82 @@
+import { useState } from 'react';
+import { Toaster } from 'react-hot-toast';
+import DragAndDropSection from './components/sections/DragAndDropSection';
+import SuggestionsSection from './components/sections/SuggestionsSection';
+import DashboardSection from './components/sections/DashboardSection';
+
+/**
+ * The main application component.
+ * It orchestrates the three main sections and manages the top-level state.
+ */
 function App() {
+  // State to hold the ID of the currently active dataset.
+  const [datasetId, setDatasetId] = useState(null);
+  // State to hold the list of charts added to the dashboard.
+  const [charts, setCharts] = useState([]);
+
+  // Callback for when a file is successfully uploaded.
+  const handleUploadSuccess = (newDatasetId) => {
+    setDatasetId(newDatasetId);
+    // Reset charts when a new file is uploaded.
+    setCharts([]);
+  };
+
+  // Callback to add a new chart to the dashboard.
+  const handleAddChart = (suggestion) => {
+    // We use a functional update to prevent duplicates.
+    setCharts((prevCharts) => {
+      // Check if a chart with the same title already exists.
+      const isAlreadyAdded = prevCharts.some(chart => chart.title === suggestion.title);
+      if (isAlreadyAdded) {
+        return prevCharts;
+      }
+      // Add the new chart to the list.
+      return [...prevCharts, suggestion];
+    });
+  };
+
   return (
-    // Contenedor principal: fondo oscuro, ocupa toda la pantalla y centra su contenido.
-    <main className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+    <>
+      {/* Global component for displaying toast notifications. */}
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: 'rgb(var(--text-default))',
+            color: 'rgb(var(--surface))',
+          },
+        }}
+      />
 
-      {/* Tarjeta: fondo más claro, padding, esquinas redondeadas, sombra y un ancho máximo. */}
-      <div className="bg-slate-800 p-8 rounded-2xl shadow-lg w-full max-w-md ring-1 ring-slate-700">
+      {/* Main layout container. */}
+      <main className="container mx-auto px-4 py-12 md:py-16">
+        <header className="text-center">
+          <h1 className="text-3xl md:text-4xl font-bold">AI Data Analysis</h1>
+          <p className="text-[rgb(var(--text-muted))] mt-2">
+            Intelligent suggestions for your .xlsx and .csv files
+          </p>
+        </header>
 
-        {/* Título: texto grande, negrita y con un gradiente de color. */}
-        <h1 className="text-3xl font-bold text-center">
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-indigo-500">
-            ¡Tailwind CSS v4 Funciona!
-          </span>
-        </h1>
+        <div className="mt-12 md:mt-16 space-y-20 md:space-y-24">
+          {/* Section 1: File Upload */}
+          <DragAndDropSection onUploadSuccess={handleUploadSuccess} />
 
-        {/* Párrafo: texto más pequeño, color sutil y un margen superior. */}
-        <p className="text-slate-400 text-center mt-4">
-          Si ves esta tarjeta estilizada, tu configuración es correcta.
-        </p>
+          {/* Separator line for visual clarity. */}
+          {datasetId && <hr className="border-t border-[rgb(var(--separator))]" />}
 
-        {/* Botón: color de fondo, texto blanco, padding, esquinas redondeadas y efecto al pasar el cursor. */}
-        <div className="mt-8 text-center">
-          <button className="bg-sky-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-sky-500 transition-colors focus:ring-4 focus:ring-sky-800">
-            Botón de Prueba
-          </button>
+          {/* Section 2: AI Suggestions */}
+          <SuggestionsSection datasetId={datasetId} onAddChart={handleAddChart} />
+          
+          {/* Separator line. */}
+          {datasetId && <hr className="border-t border-[rgb(var(--separator))]" />}
+
+          {/* Section 3: Personalized Dashboard */}
+          {datasetId && <DashboardSection charts={charts} />}
         </div>
-
-      </div>
-    </main>
-  )
+      </main>
+    </>
+  );
 }
 
-export default App
+export default App;
