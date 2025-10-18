@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, UploadFile, File
 from typing import List
 
 # Import controller functions that handle the endpoint logic
@@ -6,7 +6,7 @@ from . import controllers
 
 # Import DTOs to define the shape of requests and responses
 from ..schemas.dto import (
-    UploadSuccessResponse, SuggestionRequest, SuggestionDTO, 
+    UploadSuccessResponse, SuggestionRequest, SuggestionDTO,
     ChartParams, ChartDataResponse, ErrorResponse
 )
 
@@ -21,9 +21,10 @@ router = APIRouter(
     "/datasets/upload",
     response_model=UploadSuccessResponse,
     summary="Upload a dataset file",
-    tags=["Datasets"]
+    tags=["Datasets"],
+    status_code=201
 )
-def upload_dataset_route(file: controllers.UploadFile):
+def upload_dataset_route(file: UploadFile = File(...)):
     return controllers.upload_dataset_controller(file)
 
 

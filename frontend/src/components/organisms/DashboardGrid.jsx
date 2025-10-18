@@ -1,35 +1,30 @@
 import ChartCard from '../molecules/ChartCard';
+import ChartRenderer from './ChartRenderer';
 
 /**
- * An organism that displays the selected charts in a responsive grid.
- * @param {{
- * charts: Array<any>
- * }} props
+ * Displays selected charts in a responsive 2-column grid (max ~5 charts).
+ * @param {{ datasetId: string, charts: Array<any> }} props
  */
-const DashboardGrid = ({ charts }) => {
-  // If there are no charts, show a placeholder message.
-  if (charts.length === 0) {
+const DashboardGrid = ({ datasetId, charts }) => {
+  if (!charts || charts.length === 0) {
     return (
       <div
         style={{ borderRadius: 'var(--radius-input)' }}
         className="bg-[rgb(var(--surface))] p-8 border border-[rgb(var(--separator))] flex items-center justify-center min-h-[200px]"
       >
         <p className="text-[rgb(var(--text-muted))] text-center">
-          Your dashboard is empty. <br /> Add charts from the suggestions above to get started.
+          Your dashboard is empty. Add charts from the suggestions above.
         </p>
       </div>
     );
   }
 
-  // Render the charts in a grid layout.
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {charts.map((chart, index) => (
-        // For now, we render a placeholder ChartCard.
-        // Later, this will be a stateful component that fetches and renders the actual chart.
-        <ChartCard key={index} title={chart.title}>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {charts.map((suggestion, idx) => (
+        <ChartCard key={idx} title={suggestion.title}>
           <div className="flex items-center justify-center h-full">
-            <p className="text-[rgb(var(--text-muted))]">Chart will be rendered here.</p>
+            <ChartRenderer datasetId={datasetId} suggestion={suggestion} />
           </div>
         </ChartCard>
       ))}

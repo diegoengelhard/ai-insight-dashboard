@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { getSuggestions as apiGetSuggestions } from '../lib/api/analysis';
 import toast from 'react-hot-toast';
 
@@ -6,45 +6,40 @@ import toast from 'react-hot-toast';
  * Custom hook to manage fetching AI-generated suggestions.
  */
 export const useSuggestions = () => {
-  // State for API call status.
   const [status, setStatus] = useState('idle'); // 'idle' | 'loading' | 'success' | 'error'
-  // State to store the list of suggestions.
   const [suggestions, setSuggestions] = useState([]);
-  // State for error message.
   const [error, setError] = useState(null);
 
-  /**
-   * Function to trigger fetching suggestions.
-   * @param {string} datasetId - The ID of the dataset to analyze.
-   */
-  const fetchSuggestions = async (datasetId) => {
-    // Prevent fetching if no ID is provided.
-    if (!datasetId) return;
+  // Avoid duplicate toasts/requests if same datasetId is requested consecutively.
+  const lastIdRef = useRef(null);
 
-    // Reset states and show loading indicator.
+  /**
+   * Fetch suggestions for a datasetId (memoized).
+   */
+  const fetchSuggestions = useCallback(async (datasetId) => {
+    if (!datasetId) return;
+    if (lastIdRef.current === datasetId && status === 'success') return;
+    lastIdRef.current = datasetId;
+
     setStatus('loading');
     setSuggestions([]);
     setError(null);
-    toast.loading('Generating AI suggestions...');
+    toast.loading('Generando sugerencias con IA...');
 
     try {
-      // Call the API function.
       const response = await apiGetSuggestions(datasetId);
-      // Update state on success.
       setSuggestions(response);
       setStatus('success');
       toast.dismiss();
-      toast.success('Suggestions generated!');
+      toast.success('¡Sugerencias listas!');
     } catch (err) {
-      // Update state on error.
       const errorMessage = err.message || 'Failed to fetch suggestions.';
       setError(errorMessage);
       setStatus('error');
       toast.dismiss();
       toast.error(`Error: ${errorMessage}`);
     }
-  };
+  }, [status]);
 
-  // Expose state and the fetch function.
   return { status, suggestions, error, fetchSuggestions };
 };
