@@ -26,29 +26,41 @@ function App() {
         position="top-right"
         toastOptions={{
           duration: 3000,
-          style: { background: 'rgb(var(--text-default))', color: 'rgb(var(--surface))' },
+          style: {
+            background: 'rgb(var(--surface))',
+            color: 'rgb(var(--text-default))',
+            border: '1px solid rgb(var(--separator))',
+          },
         }}
       />
 
-      <main className="container mx-auto px-4 py-12 md:py-16">
-        <header className="text-center">
-          <h1 className="text-3xl md:text-4xl font-bold">Análisis de Datos con IA</h1>
-          <p className="text-[rgb(var(--text-muted))] mt-2">
-            Sugerencias inteligentes para tus archivos .xlsx y .csv
-          </p>
-        </header>
+      <main className="min-h-screen bg-[rgb(var(--background))]">
+        <div className="container mx-auto px-6 py-10 max-w-7xl">
+          <header className="text-center mb-10">
+            <h1 className="text-4xl font-bold text-[rgb(var(--text-default))]">
+              Análisis de Datos con IA
+            </h1>
+            <p className="text-[rgb(var(--text-muted))] mt-2 text-lg">
+              Sugerencias inteligentes para tus archivos .xlsx y .csv
+            </p>
+          </header>
 
-        <div className="mt-12 md:mt-16 space-y-20 md:space-y-24">
-          {/* 1) Drag & Drop */}
-          <DragAndDropSection onUploadSuccess={handleUploadSuccess} />
-          {datasetId && <hr className="border-t border-[rgb(var(--separator))]" />}
+          <div className="space-y-12">
+            {/* 1) Drag & Drop */}
+            <DragAndDropSection onUploadSuccess={handleUploadSuccess} />
 
-          {/* 2) AI Suggestions (carousel) */}
-          <SuggestionsSection datasetId={datasetId} onAddChart={handleAddChart} />
-          {datasetId && <hr className="border-t border-[rgb(var(--separator))]" />}
+            {/* Separator (más compacta) */}
+            {datasetId && <div className="border-t border-[rgb(var(--separator))]" />}
 
-          {/* 3) Dashboard */}
-          {datasetId && <DashboardSection datasetId={datasetId} charts={charts} />}
+            {/* 2) AI Suggestions (carousel) */}
+            <SuggestionsSection datasetId={datasetId} onAddChart={handleAddChart} />
+
+            {/* Separator */}
+            {datasetId && <div className="border-t border-[rgb(var(--separator))]" />}
+
+            {/* 3) Dashboard */}
+            {datasetId && <DashboardSection datasetId={datasetId} charts={charts} />}
+          </div>
         </div>
       </main>
     </>
