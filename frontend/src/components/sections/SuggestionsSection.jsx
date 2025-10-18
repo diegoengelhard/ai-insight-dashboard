@@ -17,12 +17,12 @@ const SuggestionsSection = ({ datasetId, onAddChart }) => {
   return (
     <section aria-labelledby="suggestions-heading">
       <h2 id="suggestions-heading" className="text-2xl font-bold mb-6">
-        Sugerencias de Gráficos Basadas en IA
+        AI Suggestions for Your Data
       </h2>
 
       {!datasetId && (
         <p className="text-[rgb(var(--text-muted))]">
-          Sube un archivo para recibir sugerencias de gráficos impulsadas por IA.
+          Upload a dataset to see AI-generated chart suggestions.
         </p>
       )}
 
