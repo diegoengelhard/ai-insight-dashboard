@@ -17,7 +17,6 @@ VALID_AGGREGATIONS = {
 
 def _load_dataframe(dataset_id: str) -> pd.DataFrame:
     """Loads a dataset into a pandas DataFrame based on its ID."""
-    # --- LÍNEA CORREGIDA ---
     # Call the method on the storage_adapter instance
     dataset_path = storage_adapter.get_dataset_filepath(dataset_id)
 
@@ -51,7 +50,6 @@ def generate_chart_data(dataset_id: str, params: ChartParams) -> ChartDataRespon
     aggregated_df.rename(columns={params.x_axis: 'x', params.y_axis: 'y'}, inplace=True)
     chart_data_points = aggregated_df.to_dict('records')
 
-    # --- LÍNEA CORREGIDA ---
     # Structure the final response to match the ChartDataResponse DTO.
     # It expects a list of series objects, each with a label and data points.
     final_series = [{

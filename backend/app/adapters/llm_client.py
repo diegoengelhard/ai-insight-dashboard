@@ -53,6 +53,16 @@ def get_suggestions_from_llm(summary_pack: str) -> str:
                 "y_axis": "Total Sales",
                 "aggregation": "sum"
             }
+        },
+        {
+            "title": "Regional Sales Distribution",
+            "insight": "A pie chart showing the sales distribution across regions. The 'North' region accounts for the largest share of sales.",
+            "parameters": {
+                "chart_type": "pie",
+                "x_axis": "Region",
+                "y_axis": "Total Sales",
+                "aggregation": "sum"
+            }
         }
     ]
 
