@@ -20,7 +20,7 @@ const SuggestionCard = ({ suggestion, onAdd }) => {
       {/* Botón al fondo */}
       <div className="mt-auto pt-6">
         <Button onClick={onAdd} className="w-full">
-          Agregar al Dashboard
+          Add to Dashboard
         </Button>
       </div>
     </div>

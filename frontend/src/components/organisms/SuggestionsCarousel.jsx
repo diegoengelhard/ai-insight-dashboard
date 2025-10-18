@@ -48,14 +48,14 @@ const SuggestionsCarousel = ({ suggestions, status, onAddChart }) => {
         <div className="flex gap-4">
           {status === 'loading' &&
             Array.from({ length: 3 }).map((_, idx) => (
-              <div key={idx} className="flex-[0_0_100%] sm:flex-[0_0_45%] lg:flex-[0_0_30%] min-w-0">
+              <div key={idx} className="flex-[0_0_calc(100%/3-theme(space.4)*2/3)] min-w-0">
                 <SuggestionCard.Skeleton />
               </div>
             ))}
 
           {status === 'success' &&
             suggestions.map((suggestion, idx) => (
-              <div key={idx} className="flex-[0_0_100%] sm:flex-[0_0_45%] lg:flex-[0_0_30%] min-w-0">
+              <div key={idx} className="flex-[0_0_calc(100%/3-theme(space.4)*2/3)] min-w-0">
                 <SuggestionCard
                   suggestion={suggestion}
                   onAdd={() => onAddChart(suggestion)}

@@ -46,14 +46,14 @@ const DropZone = ({ onFileAccepted, isLoading }) => {
         {/* Texto a la derecha */}
         <div className="text-left">
           {isDragActive ? (
-            <p className="text-xl font-semibold text-[rgb(var(--primary))]">Suelta el archivo aquí...</p>
+            <p className="text-xl font-semibold text-[rgb(var(--primary))]">Drop your file here...</p>
           ) : (
             <>
               <p className="text-lg font-semibold text-[rgb(var(--text-default))]">
-                Arrastra y suelta tu archivo aquí
+                Drag & Drop your file here
               </p>
               <p className="text-sm text-[rgb(var(--text-muted))] mt-1">
-                o haz clic para seleccionar (Formatos: .xlsx, .csv)
+                or click to select (Formats: .xlsx, .csv)
               </p>
             </>
           )}

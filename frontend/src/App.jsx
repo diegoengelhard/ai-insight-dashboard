@@ -38,10 +38,10 @@ function App() {
         <div className="container mx-auto px-6 py-10 max-w-7xl">
           <header className="text-center mb-10">
             <h1 className="text-4xl font-bold text-[rgb(var(--text-default))]">
-              Análisis de Datos con IA
+              AI Insight Dashboard
             </h1>
             <p className="text-[rgb(var(--text-muted))] mt-2 text-lg">
-              Sugerencias inteligentes para tus archivos .xlsx y .csv
+              Intelligent suggestions for your .xlsx and .csv files
             </p>
           </header>
 
