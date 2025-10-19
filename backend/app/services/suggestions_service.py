@@ -13,29 +13,31 @@ logger = logging.getLogger(__name__)
 def generate_suggestions(dataset_id: str) -> List[SuggestionDTO]:
     summary_pack = profiling_service.create_summary_pack(dataset_id)
 
+    # Example JSON structure to guide the LLM's response format.
     example_json = [
-        {
-            "title": "Total Sales by Region",
-            "chart_type": "bar",
-            "parameters": {
-                "x_axis": "Region",
-                "y_axis": "Sales",
-                "aggregation": "sum"
-            },
-            "insight": "The East region leads in sales, suggesting a strong market presence or successful sales strategies in that area."
-        }
-    ]
+            {
+                "title": "Total Sales by Region",
+                "insight": "The East region leads in sales, suggesting a strong market presence or successful sales strategies in that area.",
+                "parameters": {
+                    "chart_type": "bar",
+                    "x_axis": "Region",
+                    "y_axis": "Sales",
+                    "aggregation": "sum"
+                }
+            }
+        ]
 
     # Refined and translated master prompt for the LLM.
     master_prompt = f"""
-    You are a Senior Data Analyst. Your goal is to analyze a dataset summary and suggest 3-5 visualizations. NO MORE, NO LESS.
+    You are a Senior Data Analyst. Your goal is to analyze a dataset summary and suggest 3-5 visualizations. NO MORE, NO LESS. 
+    Regarding suggestions: Feel free to add between 3 (as minimum) and 5 (as maximum) suggestions, depending on what you find relevant. It's completely fine tsometimes 4, some other times 5, or even just 3 really good ones.
     You must return ONLY a valid JSON which should be an ARRAY of OBJECTS. Do not include any text outside the JSON array.
 
-    Each object must have these keys: "title", "chart_type", "parameters", "insight".
-    - "chart_type" must be one of: "bar", "line", "pie", "scatter".
-    - "parameters" must contain: "x_axis", "y_axis", "aggregation".
-    - "aggregation" must be one of: "sum", "mean", "count", "median", "min", "max".
-    - "insight" must be a single sentence in English.
+    Each object MUST have these keys: "title", "parameters", "insight".
+    - "parameters" MUST contain: "chart_type", "x_axis", "y_axis", "aggregation".
+    - "chart_type" MUST be JUST one of: "bar", "line", "pie", "scatter".
+    - "aggregation" MUST be JUST one of: "sum", "mean", "count", "median", "min", "max".
+    - "insight" MUST be a SINGLE sentence in English.
 
     --- EXAMPLE RESPONSE ---
     {json.dumps(example_json, indent=4)}
