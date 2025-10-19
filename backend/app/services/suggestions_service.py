@@ -1,70 +1,82 @@
-# Relative Path: backend/app/services/suggestions_service.py
-# -----------------------------------------------------------------------------
-# Correction:
-# - The master_prompt f-string contained a dictionary-like structure with a
-#   set union operator '|' between strings: {"sum" | "mean" | ...}.
-# - This is invalid Python syntax inside an f-string, as it tries to execute
-#   an unsupported operation on strings, causing a TypeError.
-# - The fix is to change this line to a simple descriptive string that conveys
-#   the same information to the LLM without being interpreted as executable code.
-# -----------------------------------------------------------------------------
-
 import json
 import logging
 from typing import List
 from pydantic import ValidationError
+from fastapi import HTTPException, status
 
 from ..schemas.dto import SuggestionDTO
 from ..services import profiling_service
 from ..adapters import llm_client
-from pathlib import Path
-from fastapi import HTTPException, status
 
 logger = logging.getLogger(__name__)
 
 def generate_suggestions(dataset_id: str) -> List[SuggestionDTO]:
-    """
-    Generates chart suggestions for a given dataset ID.
-    """
     summary_pack = profiling_service.create_summary_pack(dataset_id)
 
+    example_json = [
+        {
+            "title": "Total Sales by Region",
+            "chart_type": "bar",
+            "parameters": {
+                "x_axis": "Region",
+                "y_axis": "Sales",
+                "aggregation": "sum"
+            },
+            "insight": "The East region leads in sales, suggesting a strong market presence or successful sales strategies in that area."
+        }
+    ]
+
+    # Refined and translated master prompt for the LLM.
     master_prompt = f"""
-    You are an expert data analyst. Your task is to analyze the following dataset summary
-    and suggest 3 to 5 insightful and visually appealing charts. For each chart, you must
-    provide a clear title, a brief insight, and the precise parameters required to build it.
+    You are a Senior Data Analyst. Your goal is to analyze a dataset summary and suggest 3-5 visualizations. NO MORE, NO LESS.
+    You must return ONLY a valid JSON which should be an ARRAY of OBJECTS. Do not include any text outside the JSON array.
 
-    Your response MUST be a valid JSON array of objects. Each object must conform to the
-    following structure:
-    {{
-      "title": "A clear, descriptive chart title.",
-      "insight": "A brief, one-sentence insight explaining what the chart reveals.",
-      "parameters": {{
-        "chart_type": "one of ['bar', 'line', 'pie', 'scatter']",
-        "x_axis": "The name of the column for the X-axis.",
-        "y_axis": "The name of the column (or a list of columns) for the Y-axis.",
-        "aggregation": "one of ['sum', 'mean', 'count', 'median', 'min', 'max']"
-      }}
-    }}
+    Each object must have these keys: "title", "chart_type", "parameters", "insight".
+    - "chart_type" must be one of: "bar", "line", "pie", "scatter".
+    - "parameters" must contain: "x_axis", "y_axis", "aggregation".
+    - "aggregation" must be one of: "sum", "mean", "count", "median", "min", "max".
+    - "insight" must be a single sentence in English.
 
-    Do not include any text, explanations, or code formatting outside of the main JSON array.
+    --- EXAMPLE RESPONSE ---
+    {json.dumps(example_json, indent=4)}
+    --- END EXAMPLE ---
 
     --- DATASET SUMMARY ---
     {summary_pack}
     --- END OF SUMMARY ---
 
-    Now, provide your JSON response.
+    Now, provide ONLY the JSON array as your response.
     """
-    
-    # ... (el resto del código permanece igual)
+
     try:
-        raw_llm_response = llm_client.get_suggestions_from_llm(master_prompt)
-        suggestions_data = json.loads(raw_llm_response)
         
-        # Pydantic validation
+        raw_llm_response = llm_client.get_suggestions_from_llm(master_prompt)
+        print("--- RAW LLM RESPONSE ---")
+        print(raw_llm_response)
+        print("--- END RAW LLM RESPONSE ---")
+
+        def _parse_llm_json(s: str):
+            # Try direct load
+            try:
+                obj = json.loads(s)
+                if isinstance(obj, list):
+                    return obj
+                if isinstance(obj, dict):
+                    return [obj]
+            except Exception:
+                pass
+            # Fallback: extract first JSON array substring
+            start = s.find('[')
+            end = s.rfind(']')
+            if start != -1 and end != -1 and end > start:
+                return json.loads(s[start:end+1])
+            raise json.JSONDecodeError("Could not parse JSON array from LLM output.", s, 0)
+
+        suggestions_data = _parse_llm_json(raw_llm_response)
+        
         validated_suggestions = [SuggestionDTO.parse_obj(item) for item in suggestions_data]
         
         logger.info(f"Successfully generated and validated {len(validated_suggestions)} suggestions for dataset '{dataset_id}'.")
-        
         return validated_suggestions
 
     except json.JSONDecodeError:
@@ -77,7 +89,7 @@ def generate_suggestions(dataset_id: str) -> List[SuggestionDTO]:
         logger.error(f"LLM response failed Pydantic validation for dataset '{dataset_id}'. Errors: {e}")
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"The AI service returned data in an unexpected format. Validation failed."
+            detail=f"The AI service returned data in an unexpected format. Validation failed: {e}"
         )
     except Exception as e:
         logger.error(f"An unexpected error occurred during suggestion generation for dataset '{dataset_id}': {e}")
