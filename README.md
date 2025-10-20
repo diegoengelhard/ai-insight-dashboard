@@ -37,15 +37,19 @@ pip install -r requirements.txt
 # Create a new file named .env in the \`backend/\` directory.  
 touch .env
 
-# Add your API key to the .env file.  
-# Replace sk-xxxxxxxx with your actual key.  
-echo 'OPENAI\_API\_KEY="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"' \> .env
+# Add necesary env variables
+OPENAI_API_KEY="sk-******************"
+PYTHON_VERSION="3.8.10"
+PROD_FRONTEND_URL="your-frontend-prod-url" # In case of deployment
 
 # 5. Run the FastAPI server  
 uvicorn app.main:app \--reload
 
 # The server will run on http://127.0.0.1:8000  
 ```
+
+> **Important Note**: this project works best on Python version `3.8.10`. It's **HIGHLY** encourged to set said version in order to run this project.
+
 ### **2\. Frontend Setup**
 
 Now, let's set up the React user interface.

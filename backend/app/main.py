@@ -5,6 +5,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 
 from .api import routers
 from .schemas.dto import ErrorResponse
+from .config import settings
 
 # --- Application Initialization ---
 app = FastAPI(
@@ -45,15 +46,16 @@ async def value_error_exception_handler(request: Request, exc: ValueError):
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 # Add CORS middleware to allow cross-origin requests from the frontend.
-# This is crucial for connecting the React app to this API.
+allowed_origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+if settings.PROD_FRONTEND_URL:
+    allowed_origins.append(settings.PROD_FRONTEND_URL)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        # The default origin for the Vite dev server
-        "http://localhost:5173", 
-        "http://127.0.0.1:5173",
-        # Add production frontend URL here when deployed
-    ],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],  # Allow all methods (GET, POST, etc.)
     allow_headers=["*"],  # Allow all headers
