@@ -48,7 +48,12 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 # This is crucial for connecting the React app to this API.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],  # The default origin for the Vite dev server
+    allow_origins=[
+        # The default origin for the Vite dev server
+        "http://localhost:5173", 
+        "http://127.0.0.1:5173",
+        # Add production frontend URL here when deployed
+    ],
     allow_credentials=True,
     allow_methods=["*"],  # Allow all methods (GET, POST, etc.)
     allow_headers=["*"],  # Allow all headers
