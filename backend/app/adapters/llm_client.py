@@ -51,3 +51,131 @@ def get_suggestions_from_llm(summary_pack: str, attempt=1) -> str:
     except Exception as e:
         logger.error(f"An unexpected error occurred while calling OpenAI API: {e}")
         raise
+
+"""
+Example of expected response format:
+You are a Senior Data Analyst. Your goal is to analyze a dataset summary and suggest 3-5 visualizations. NO MORE, NO LESS.
+...
+--- EXAMPLE RESPONSE ---
+[ { "title": "Total Sales by Region", ... } ]
+--- END EXAMPLE ---
+
+--- DATASET SUMMARY ---
+--- Dataset Schema and Basic Info ---
+Filename: sample_sales.csv
+Number of Rows: 9
+Number of Columns: 5
+
+Column Names and Data Types:
+- 'OrderDate' (Type: object)
+- 'Region' (Type: object)
+- 'Category' (Type: object)
+- 'Product' (Type: object)
+- 'SaleAmount' (Type: int64)
+
+--- Statistical Summary for Numerical Columns ---
+       SaleAmount
+count    9.000000
+mean   258.000000
+std    358.680000
+min     30.000000
+25%    125.000000
+50%    180.000000
+75%    200.000000
+max   1200.000000
+
+--- Analysis of Categorical Columns (Top 5 Values) ---
+
+--- Dataset Schema and Basic Info ---
+Filename: sample_sales.csv
+Number of Rows: 9
+Number of Columns: 5
+
+Column Names and Data Types:
+- 'OrderDate' (Type: object)
+- 'Region' (Type: object)
+- 'Category' (Type: object)
+- 'Product' (Type: object)
+- 'SaleAmount' (Type: int64)
+
+--- Statistical Summary for Numerical Columns ---
+       SaleAmount
+count    9.000000
+mean   258.000000
+std    358.680000
+min     30.000000
+25%    125.000000
+50%    180.000000
+75%    200.000000
+max   1200.000000
+
+--- Analysis of Categorical Columns (Top 5 Values) ---
+
+Column: 'Region'
+North    3
+South    2
+West     2
+East     2
+
+Column: 'Category'
+Electronics       4
+Furniture         3
+Office Supplies   2
+
+Column: 'Product'
+Laptop     1
+Keyboard   1
+Pens       1
+Desk       1
+Chair      1
+
+--- END OF SUMMARY ---
+
+Now, provide ONLY the JSON array as your response.
+"""
+
+"""
+Expected JSON Response:
+[
+  {
+    "title": "Sales Trend Over Time",
+    "insight": "Sales fluctuate across months with a clear spike in mid-January driven by a high-value transaction, indicating irregular demand over time.",
+    "parameters": {
+      "chart_type": "line",
+      "x_axis": "OrderDate",
+      "y_axis": "SaleAmount",
+      "aggregation": "sum"
+    }
+  },
+  {
+    "title": "Total Sales by Region",
+    "insight": "The North region leads with $1,380 in sales (≈3.4x South), suggesting the strongest demand footprint.",
+    "parameters": {
+      "chart_type": "bar",
+      "x_axis": "Region",
+      "y_axis": "SaleAmount",
+      "aggregation": "sum"
+    }
+  },
+  {
+    "title": "Sales Composition by Category",
+    "insight": "Electronics concentrates ≈72% of revenue (1,662 of 2,322), far ahead of Furniture and Office Supplies.",
+    "parameters": {
+      "chart_type": "pie",
+      "x_axis": "Category",
+      "y_axis": "SaleAmount",
+      "aggregation": "sum"
+    }
+  },
+  {
+    "title": "Average Order Value by Region",
+    "insight": "Average ticket is highest in the North at ≈$460, outpacing other regions.",
+    "parameters": {
+      "chart_type": "bar",
+      "x_axis": "Region",
+      "y_axis": "SaleAmount",
+      "aggregation": "mean"
+    }
+  }
+]
+"""
